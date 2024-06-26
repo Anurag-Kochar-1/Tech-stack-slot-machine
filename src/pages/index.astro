@@ -3,10 +3,15 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-  <div id="slot" class="w-full py-10">
+  <audio
+    id="spin-sound"
+    src="https://d1490khl9dq1ow.cloudfront.net/sfx/mp3preview/slot-machine-pull-handle-electronic-musical-beeps-casino_GyFuD2Nd.mp3"
+  ></audio>
+
+  <div id="slot" class="py-10">
     <div
       id="reels"
-      class="mx-auto flex w-screen relative h-[calc((3/5)*100vw)] max-h-[calc(90vh-50px-55px)] max-w-[calc((5/3)*(90vh-50px-40px))] bg-gray-900 border-4 border-amber-500"
+      class="mx-auto flex w-screen lg:w-full relative h-[calc((3/5)*95vw)] lg:h-[calc((3/5)*100vw)] max-h-[calc(90vh-50px-55px)] max-w-[calc((5/3)*(90vh-50px-40px))] bg-gray-900 border-4 border-amber-500"
     >
       <img
         src="https://th.bing.com/th/id/R.78c07862203807103f679a66dca3092b?rik=EJ2qkqSHTfXXag&riu=http%3a%2f%2fgetwallpapers.com%2fwallpaper%2ffull%2f9%2fb%2ff%2f30159.jpg&ehk=T2EuPYlmaR%2fEWXEa%2bhaf8smAo5jYJh7PjoQ8CTRDhks%3d&risl=&pid=ImgRaw&r=0"
@@ -20,7 +25,7 @@ import Layout from "../layouts/Layout.astro";
       <div class="reel"></div>
     </div>
     <!-- Actions -->
-    <div class="flex justify-center items-center gap-10 py-10">
+    <div class="flex justify-center items-center gap-10 py-10 w-min mx-auto">
       <button
         type="button"
         id="spin"
@@ -68,7 +73,7 @@ import Layout from "../layouts/Layout.astro";
 <script>
   import { getLogoById } from "../utils";
   import { SYMBOL_GROUPS } from "../constants/symbol-groups";
-
+  const spinSoundElem = document.querySelector("#spin-sound");
   const cache: Record<string, HTMLImageElement> = {};
 
   class Symbol {
@@ -152,11 +157,11 @@ import Layout from "../layouts/Layout.astro";
       this.animation = this.symbolContainer.animate(
         [
           { top: "0", filter: "blur(0)" },
-          { filter: "blur(4px)", offset: 0.5 },
+          { filter: "blur(2px)", offset: 0.5 },
           {
             top: `calc((${Math.floor(this.factor) * 10} / 3) * -100% - (${
               Math.floor(this.factor) * 10
-            } * 3px))`,
+            } * 2px))`,
             filter: "blur(0)",
           },
         ],
@@ -307,6 +312,8 @@ import Layout from "../layouts/Layout.astro";
       return Promise.all(
         this.reels.map((reel) => {
           reel.renderSymbols(this.nextSymbols[reel.idx]);
+          // @ts-ignore
+          // spinSoundElem?.play();
           return reel.spin();
         })
       ).then(() => this.onSpinEnd(this.nextSymbols));
