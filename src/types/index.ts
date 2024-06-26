@@ -1,4 +1,5 @@
 export type Symbol_ = {
+  id: string;
   name: string;
   logo: string;
   landingPageUrl: string;

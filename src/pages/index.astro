@@ -1,9 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
+// import { SYMBOL_GROUPS } from "../constants/symbol-groups";
 ---
 
 <Layout>
-  <div id="w-full bg-red-400 mt-10">
+  <div id="slot" class="w-full bg-red-400 mt-10">
     <div
       id="reels"
       class="mx-auto flex w-screen h-[calc((3/5)*100vw)] max-h-[calc(90vh-50px-40px)] max-w-[calc((5/3)*(90vh-50px-40px))] bg-gray-900"
@@ -60,3 +61,274 @@ import Layout from "../layouts/Layout.astro";
     transform: scaleY(-1);
   }
 </style>
+
+<script>
+  import { getLogoById } from "../utils";
+  import { SYMBOL_GROUPS } from "../constants/symbol-groups";
+
+  const cache: Record<string, HTMLImageElement> = {};
+
+  class Symbol {
+    name: string;
+    img: HTMLImageElement;
+
+    constructor(name: string = Symbol.random()) {
+      this.name = name;
+
+      if (cache[name]) {
+        this.img = cache[name].cloneNode() as HTMLImageElement;
+      } else {
+        this.img = new Image();
+        // @ts-ignore
+        this.img.src = getLogoById(name);
+
+        cache[name] = this.img;
+      }
+    }
+
+    static preload(c: string): void {
+      Symbol.getSymbols(c).forEach((symbol) => new Symbol(symbol));
+    }
+
+    static getSymbols(category?: string): string[] {
+      const frontend = SYMBOL_GROUPS.frontend.map((item) => item.id);
+      const backend = SYMBOL_GROUPS.backend.map((item) => item.id);
+      const styling = SYMBOL_GROUPS.styling.map((item) => item.id);
+      const database = SYMBOL_GROUPS.database.map((item) => item.id);
+      const deployment = SYMBOL_GROUPS.deployment.map((item) => item.id);
+
+      switch (category) {
+        case "frontend":
+          return frontend;
+        case "backend":
+          return backend;
+        case "styling":
+          return styling;
+        case "database":
+          return database;
+        case "deployment":
+          return deployment;
+        default:
+          return [
+            ...frontend,
+            ...backend,
+            ...database,
+            ...styling,
+            ...deployment,
+          ];
+      }
+    }
+
+    static random(category?: string): string {
+      const symbols = this.getSymbols(category);
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+  }
+
+  class Reel {
+    reelContainer: HTMLElement;
+    idx: number;
+    symbolContainer: HTMLDivElement;
+    animation: Animation;
+
+    constructor(
+      reelContainer: HTMLElement,
+      idx: number,
+      initialSymbols: string[]
+    ) {
+      this.reelContainer = reelContainer;
+      this.idx = idx;
+
+      this.symbolContainer = document.createElement("div");
+      this.symbolContainer.classList.add("icons");
+      this.reelContainer.appendChild(this.symbolContainer);
+
+      this.animation = this.symbolContainer.animate(
+        [
+          { top: "0", filter: "blur(0)" },
+          { filter: "blur(4px)", offset: 0.5 },
+          {
+            top: `calc((${Math.floor(this.factor) * 10} / 3) * -100% - (${
+              Math.floor(this.factor) * 10
+            } * 3px))`,
+            filter: "blur(0)",
+          },
+        ],
+        {
+          duration: this.factor * 1000,
+          easing: "ease-in-out",
+        }
+      );
+
+      this.animation.cancel();
+
+      initialSymbols.forEach((symbol) =>
+        this.symbolContainer.appendChild(new Symbol(symbol).img)
+      );
+    }
+
+    get factor(): number {
+      return 1 + Math.pow(this.idx / 2, 2);
+    }
+
+    renderSymbols(nextSymbols: string[]): void {
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 3; i < 3 + Math.floor(this.factor) * 10; i++) {
+        const icon = new Symbol(
+          i >= 10 * Math.floor(this.factor) - 2
+            ? nextSymbols[i - Math.floor(this.factor) * 10]
+            : undefined
+        );
+        fragment.appendChild(icon.img);
+      }
+
+      this.symbolContainer.appendChild(fragment);
+    }
+
+    spin(): Promise<void> {
+      const animationPromise = new Promise<void>(
+        (resolve) => (this.animation.onfinish = () => resolve())
+      );
+      const timeoutPromise = new Promise<void>((resolve) =>
+        setTimeout(() => resolve(), this.factor * 1000)
+      );
+
+      this.animation.cancel();
+      this.animation.play();
+
+      return Promise.race([animationPromise, timeoutPromise]).then(() => {
+        if (this.animation.playState !== "finished") this.animation.finish();
+
+        const max = this.symbolContainer.children.length - 3;
+
+        for (let i = 0; i < max; i++) {
+          this.symbolContainer.firstChild?.remove();
+        }
+      });
+    }
+  }
+
+  interface SlotConfig {
+    inverted?: boolean;
+    onSpinStart?: (symbols: string[][]) => void;
+    onSpinEnd?: (symbols: string[][]) => void;
+  }
+
+  class Slot {
+    currentSymbols: string[][];
+    nextSymbols: string[][];
+    container: HTMLElement;
+    reels: Reel[];
+    spinButton: HTMLButtonElement;
+    autoPlayCheckbox: HTMLInputElement;
+    config: SlotConfig;
+
+    constructor(domElement: HTMLElement, config: SlotConfig = {}) {
+      Symbol.preload("deployment");
+
+      this.currentSymbols = [
+        ["reactJs", "vueJs", "angularJs"],
+        ["nodeJs", "sb", "go"],
+        ["mui", "si", "antd"],
+        ["vercel", "netlify", "sh"],
+        ["reactJs", "vueJs", "angularJs"],
+      ];
+
+      this.nextSymbols = [
+        ["reactJs", "reactJs", "reactJs"],
+        ["reactJs", "reactJs", "reactJs"],
+        ["reactJs", "reactJs", "reactJs"],
+        ["reactJs", "reactJs", "reactJs"],
+        ["reactJs", "reactJs", "reactJs"],
+      ];
+
+      this.container = domElement;
+
+      this.reels = Array.from(
+        this.container.getElementsByClassName("reel")
+      ).map(
+        (reelContainer, idx) =>
+          new Reel(reelContainer as HTMLElement, idx, this.currentSymbols[idx])
+      );
+
+      this.spinButton = document.getElementById("spin") as HTMLButtonElement;
+      this.spinButton.addEventListener("click", () => this.spin());
+
+      this.autoPlayCheckbox = document.getElementById(
+        "autoplay"
+      ) as HTMLInputElement;
+
+      if (config.inverted) {
+        this.container.classList.add("inverted");
+      }
+
+      this.config = config;
+    }
+
+    spin(): Promise<void> {
+      this.currentSymbols = this.nextSymbols;
+      this.nextSymbols = [
+        [
+          Symbol.random("frontend"),
+          Symbol.random("frontend"),
+          Symbol.random("frontend"),
+        ],
+        [
+          Symbol.random("backend"),
+          Symbol.random("backend"),
+          Symbol.random("backend"),
+        ],
+        [
+          Symbol.random("styling"),
+          Symbol.random("styling"),
+          Symbol.random("styling"),
+        ],
+        [
+          Symbol.random("deployment"),
+          Symbol.random("deployment"),
+          Symbol.random("deployment"),
+        ],
+        [
+          Symbol.random("database"),
+          Symbol.random("database"),
+          Symbol.random("database"),
+        ],
+      ];
+
+      this.onSpinStart(this.nextSymbols);
+
+      return Promise.all(
+        this.reels.map((reel) => {
+          reel.renderSymbols(this.nextSymbols[reel.idx]);
+          return reel.spin();
+        })
+      ).then(() => this.onSpinEnd(this.nextSymbols));
+    }
+
+    onSpinStart(symbols: string[][]): void {
+      this.spinButton.disabled = true;
+
+      this.config.onSpinStart?.(symbols);
+    }
+
+    onSpinEnd(symbols: string[][]): void {
+      this.spinButton.disabled = false;
+
+      this.config.onSpinEnd?.(symbols);
+    }
+  }
+
+  // Usage
+  const config: SlotConfig = {
+    inverted: false,
+    onSpinStart: (symbols) => {
+      console.log("onSpinStart", symbols);
+    },
+    onSpinEnd: (symbols) => {
+      console.log("onSpinEnd", symbols);
+    },
+  };
+
+  const slot = new Slot(document.getElementById("slot") as HTMLElement, config);
+</script>
