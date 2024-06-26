@@ -1,5 +1,5 @@
 ---
-
+import GoogleAnalytics from "../components/analytics/GoogleAnalytics.astro";
 ---
 
 <html lang="en">
@@ -9,16 +9,7 @@
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>Astro</title>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XY7J7X8NRK"
-    ></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-XY7J7X8NRK");
-    </script>
+    <GoogleAnalytics />
   </head>
   <body>
     <h1>🏭 Hello machine</h1>
