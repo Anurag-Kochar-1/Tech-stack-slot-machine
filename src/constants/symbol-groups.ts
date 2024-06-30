@@ -91,7 +91,7 @@ export const SYMBOL_GROUPS: SymbolGroups = {
     {
       id: "si",
       name: "Shadcn UI",
-      logo: "https://utfs.io/f/0e538609-0347-4dbd-ab59-967669cae9e8-cijg4p.png",
+      logo: "https://utfs.io/f/e5d4397c-f410-48ed-b93a-7d08dfabe6e9-cijg4p.png",
       landingPageUrl: "",
     },
     {
