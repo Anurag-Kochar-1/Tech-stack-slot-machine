@@ -9,6 +9,7 @@ import Layout from "@/layouts/Layout.astro";
   >
     <h1
       class="text-white text-center text-4xl md:text-5xl lg:text-6xl xl:text-7xl my-10 font-bowlby"
+      id="heading"
     >
       Tech stack slot machine
     </h1>
@@ -78,12 +79,14 @@ import Layout from "@/layouts/Layout.astro";
     const blip = document.querySelector("#blip-sound");
     const cache: Record<string, HTMLImageElement> = {};
     import { Sound } from "../js/sound";
+
     class SoundServiceClass {
       blipSound = new Sound(
         "https://utfs.io/f/42412a11-0bbe-4fdd-a5de-c013ae844e3f-1sve9.mp3"
       );
       soundsStatus = "loading";
       isEnabled = false;
+      private _currentVolume = 0.7;
 
       constructor() {
         this.loadSounds();
@@ -122,7 +125,19 @@ import Layout from "@/layouts/Layout.astro";
 
       // @ts-ignore
       blip(...args) {
-        this.isEnabled && this.blipSound.play(...args);
+        // @ts-ignore
+        if (this.isEnabled) {
+          const volumeAdjustedArgs = [this._currentVolume, ...args];
+          this.blipSound.play(...volumeAdjustedArgs);
+        }
+      }
+
+      set currentVolume(value: number) {
+        this._currentVolume = Math.max(0, Math.min(1, value)); // Ensure volume is between 0 and 1
+      }
+
+      get currentVolume() {
+        return this._currentVolume;
       }
     }
 
@@ -338,14 +353,41 @@ import Layout from "@/layouts/Layout.astro";
       }
 
       spin(): Promise<void> {
+        // SMSoundService.enable();
+        // this.intervalId = window.setInterval(() => {
+        //   if (SMSoundService.isEnabled) {
+        //     SMSoundService.blip();
+        //   }
+        // }, 100);
+
         SMSoundService.enable();
+        SMSoundService.currentVolume = 0.6;
+
+        const intervalDuration = 3750;
+        const volumeDecreaseInterval = 100;
+        const totalSteps = intervalDuration / volumeDecreaseInterval;
+        let currentStep = 0;
+        const startVolume = SMSoundService.currentVolume;
 
         this.intervalId = window.setInterval(() => {
           if (SMSoundService.isEnabled) {
-            SMSoundService.blip();
-          }
-        }, 100);
+            currentStep++;
+            // const volumeDecreaseRatio = currentStep / totalSteps;
+            const volumeDecreaseRatio = Math.pow(currentStep / totalSteps, 0.9);
+            const newVolume = startVolume * (1 - volumeDecreaseRatio);
 
+            SMSoundService.currentVolume = Math.max(0, newVolume);
+            SMSoundService.blip();
+
+            if (currentStep >= totalSteps) {
+              clearInterval(this.intervalId as any);
+              this.intervalId = null;
+              SMSoundService.currentVolume = 0;
+            }
+          }
+        }, volumeDecreaseInterval);
+
+        // 📖📖📖📖📖📖📖📖📖📖
         this.currentSymbols = this.nextSymbols;
         this.nextSymbols = [
           [
