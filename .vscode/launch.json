@@ -7,5 +7,6 @@
       "request": "launch",
       "type": "node-terminal"
     }
-  ]
+  ],
+  "editor.wordWrap": "on"
 }

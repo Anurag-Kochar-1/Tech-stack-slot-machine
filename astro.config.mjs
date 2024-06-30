@@ -5,9 +5,12 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [partytown({
-    config: {
-      forward: ["dataLayer.push"]
-    }
-  }), tailwind()]
+  integrations: [
+    partytown({
+      config: {
+        forward: ["dataLayer.push"],
+      },
+    }),
+    tailwind(),
+  ],
 });
