@@ -471,11 +471,23 @@ import Layout from "@/layouts/Layout.astro";
   };
 
   const slot = new Slot(document.getElementById("slot") as HTMLElement, config);
-
   document.addEventListener("DOMContentLoaded", function () {
     const toggleSound = document.getElementById("toggleSound");
     const soundIcon = toggleSound?.querySelector("span");
-    let isSoundOn = true;
+    isSoundOn = JSON.parse(window.localStorage.getItem("isSoundOn") || "true");
+    if (isSoundOn) {
+      SMSoundService.enable();
+      window.localStorage.setItem("isSoundOn", "true");
+      if (soundIcon) {
+        soundIcon.textContent = "🔊";
+      }
+    } else {
+      SMSoundService.disable();
+      window.localStorage.setItem("isSoundOn", "false");
+      if (soundIcon) {
+        soundIcon.textContent = "🔇";
+      }
+    }
 
     if (toggleSound && soundIcon) {
       toggleSound.addEventListener("click", function () {
@@ -484,22 +496,13 @@ import Layout from "@/layouts/Layout.astro";
         if (isSoundOn) {
           soundIcon.textContent = "🔊";
           SMSoundService.enable();
+          window.localStorage.setItem("isSoundOn", "true");
         } else {
           soundIcon.textContent = "🔇";
           SMSoundService.disable();
+          window.localStorage.setItem("isSoundOn", "false");
         }
       });
     }
   });
-  // document.addEventListener("DOMContentLoaded", function () {
-  //   const arm = document.getElementById("arm");
-  //   arm?.addEventListener("click", function (e) {
-  //     this.classList.add("clicked");
-  //     slot.spin();
-  //     setTimeout(function () {
-  //       arm?.classList.remove("clicked");
-  //     }, 500 * 5);
-  //     e.preventDefault();
-  //   });
-  // });
 </script>
