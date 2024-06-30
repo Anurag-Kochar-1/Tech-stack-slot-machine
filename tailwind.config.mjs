@@ -26,8 +26,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Bowlby One", ...defaultTheme.fontFamily.sans],
-        inter: ["Inter Variable", ...defaultTheme.fontFamily.sans],
+        bowlby: ["Bowlby One", ...defaultTheme.fontFamily.sans],
+        sans: ["Inter Variable", ...defaultTheme.fontFamily.sans],
       },
     },
   },

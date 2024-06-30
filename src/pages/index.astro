@@ -5,27 +5,28 @@ import Layout from "../layouts/Layout.astro";
 <Layout>
   <div
     id="slot"
-    class="min-h-screen bg-background flex-col flex justify-center items-center relative"
+    class="min-h-screen bg-background flex-col flex justify-center items-center relative overflow-y-auto pb-32"
   >
-    <h1 class="text-white text-center text-4xl md:text-7xl my-10">Tech stack slot machine</h1>
+    <h1 class="text-white text-center text-4xl md:text-7xl my-10 font-bowlby">
+      Tech stack slot machine
+    </h1>
+
     <div
       id="reels"
-      class="mx-auto flex w-screen lg:w-full h-[calc((3/5)*95vw)] lg:h-[calc((3/5)*100vw)] max-h-[calc(90vh-50px-55px)] max-w-[calc((5/3)*(90vh-50px-40px))] border-2 lg:border-4 border-border rounded-md"
+      class="mx-auto flex w-[90%] lg:w-full h-[calc((3/5)*85vw)] lg:h-[calc((3/5)*100vw)] max-h-[calc(90vh-50px-55px)] lg:max-h-[calc(90vh-50px-55px)] max-w-[calc((5/3)*(90vh-50px-40px))] border-2 lg:border-4 border-border rounded-md"
     >
       <div class="reel border-l-2 md:border-l-4 border-l-border"></div>
       <div class="reel border-l-2 md:border-l-4 border-l-border"></div>
       <div class="reel border-l-2 md:border-l-4 border-l-border"></div>
       <div class="reel border-l-2 md:border-l-4 border-l-border"></div>
       <div class="reel border-l-2 md:border-l-4 border-l-border"></div>
-
-      <button type="button" id="spin" class="fixed top-0 left-0">Spin</button>
+    </div>
+    <div class="flex mt-10 justify-between items-center gap-4 mx-auto">
+      <button type="button" id="spin" class="text-white font-bowlby border-2 border-white px-8 py-4 text-lg"
+        >Spin</button
+      >
     </div>
   </div>
-
-  <script
-    is:inline
-    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"
-  ></script>
 
   <style is:global>
     .reel {
@@ -153,7 +154,7 @@ import Layout from "../layouts/Layout.astro";
             },
           ],
           {
-            duration: this.factor * 500,
+            duration: this.factor * 750,
             easing: "ease-in-out",
           }
         );
