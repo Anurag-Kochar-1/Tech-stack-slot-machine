@@ -19,6 +19,17 @@ import Layout from "@/layouts/Layout.astro";
         id="reels"
         class="mx-auto flex w-[90%] lg:w-full h-[calc((3/5)*85vw)] lg:h-[600px] max-h-[calc(90vh-50px-55px)] lg:max-h-[calc(90vh-50px-55px)] max-w-[calc((5/3)*(90vh-50px-40px))] border-2 lg:border-4 border-border rounded-md relative"
       >
+        <!-- <img
+          src="https://bannerflow.blob.core.windows.net/resources/winner2-d4e9ae90-43f8-4575-99b9-fc675462bc35.svg?v=636058905940602803"
+          alt="winning image"
+          class="absolute inset-0 size-full"
+        /> -->
+        <!-- <img
+          src="https://bannerflow.blob.core.windows.net/resources/winner1-e3971196-c01b-4985-8303-3a1829f2d529.svg?v=636058905940602803"
+          alt="winning image"
+          class="absolute inset-0 size-full z-20"
+        /> -->
+
         <!-- Left triangle -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -44,7 +55,7 @@ import Layout from "@/layouts/Layout.astro";
           stroke-width="3"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="lucide lucide-play absolute -right-1  md:-right-2 top-1/2 transform -translate-y-1/2 rotate-180 z-30 size-4 md:size-8"
+          class="lucide lucide-play absolute -right-1 md:-right-2 top-1/2 transform -translate-y-1/2 rotate-180 z-30 size-4 md:size-8"
           ><polygon points="6 3 20 12 6 21 6 3"></polygon></svg
         >
 
@@ -53,7 +64,6 @@ import Layout from "@/layouts/Layout.astro";
           class="h-[1px] md:h-[2px] w-full absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-secondary-foreground opacity-50"
         >
         </div>
-
 
         <div class="reel border-l-2 md:border-l-4 border-l-transparent"></div>
         <div class="reel border-l-2 md:border-l-4 border-l-border"></div>
@@ -97,7 +107,7 @@ import Layout from "@/layouts/Layout.astro";
     width: calc(100% + 6px);
     margin: -3px 0 0 -3px;
     height: auto;
-     border-bottom: 1px solid #27272A; 
+    border-bottom: 1px solid #27272a;
 
     /* enable gpu accelaration, fixes iOS flicker */
     transform: translate3d(0, 0, 0);
@@ -116,9 +126,6 @@ import Layout from "@/layouts/Layout.astro";
   import { getLogoById } from "../utils";
   import { SYMBOL_GROUPS } from "../constants/symbol-groups";
   import { Sound } from "../js/sound";
-  const spinSoundElem = document.querySelector("#spin-sound");
-  const result = document.querySelector("#result");
-  const blip = document.querySelector("#blip-sound");
   const cache: Record<string, HTMLImageElement> = {};
   let isSoundOn = true;
 
@@ -128,6 +135,9 @@ import Layout from "@/layouts/Layout.astro";
     );
     buttonSound = new Sound(
       "https://utfs.io/f/3e9c13cf-8aa5-4ca0-92b5-8ada3a255423-4vv1d1.mp3"
+    );
+    thalaSound = new Sound(
+      "https://utfs.io/f/8830e499-c194-47d8-88c3-a6930d7facf7-779yu4.mp3"
     );
     soundsStatus = "loading";
     isEnabled = false;
@@ -141,7 +151,11 @@ import Layout from "@/layouts/Layout.astro";
       this.soundsStatus = "loading";
       this.isEnabled = false;
 
-      Promise.all([this.blipSound.load(), this.buttonSound.load()])
+      Promise.all([
+        this.blipSound.load(),
+        this.buttonSound.load(),
+        this.thalaSound.load(),
+      ])
         .then(() => {
           this.soundsStatus = "loaded";
           this.isEnabled = true;
@@ -164,14 +178,16 @@ import Layout from "@/layouts/Layout.astro";
       if (this.soundsStatus !== "loaded") return;
       this.blipSound.stop();
       this.buttonSound.stop();
+      this.thalaSound.stop();
+
       this.isEnabled = false;
-      this.blipSound.stop();
     }
 
     // @ts-ignore
     blip(...args) {
       // @ts-ignore
       if (this.isEnabled) {
+        SMSoundService.thalaSound.stop();
         const volumeAdjustedArgs = [this._currentVolume, ...args];
         this.blipSound.play(...volumeAdjustedArgs);
       }
@@ -180,6 +196,14 @@ import Layout from "@/layouts/Layout.astro";
     // @ts-ignore
     button(...args) {
       this.buttonSound.play(...args);
+    }
+
+    // @ts-ignore
+    thala(...args) {
+      if (this.isEnabled) {
+        const volumeAdjustedArgs = [this._currentVolume, ...args];
+        this.thalaSound.play(...volumeAdjustedArgs);
+      }
     }
 
     set currentVolume(value: number) {
@@ -397,6 +421,15 @@ import Layout from "@/layouts/Layout.astro";
       this.intervalId = null;
     }
 
+    checkFirstIndexIsSeven(data: string[][]): boolean {
+      for (const array of data) {
+        if (array[1] !== "seven") {
+          return false;
+        }
+      }
+      return true;
+    }
+
     spin(): Promise<void> {
       // SMSoundService.enable();
       // this.intervalId = window.setInterval(() => {
@@ -422,6 +455,7 @@ import Layout from "@/layouts/Layout.astro";
             const newVolume = startVolume * (1 - volumeDecreaseRatio);
 
             SMSoundService.currentVolume = Math.max(0, newVolume);
+            console.log(`Value -> `, Math.max(0, newVolume));
             SMSoundService.blip();
 
             if (currentStep >= totalSteps) {
@@ -433,31 +467,35 @@ import Layout from "@/layouts/Layout.astro";
         }, volumeDecreaseInterval);
       }
 
-      // 📖📖📖📖📖📖📖📖📖📖
       this.currentSymbols = this.nextSymbols;
       this.nextSymbols = [
         [
           Symbol.random("frontend"),
           Symbol.random("frontend"),
+          // "seven",
           Symbol.random("frontend"),
         ],
         [
           Symbol.random("backend"),
+          // "seven",
           Symbol.random("backend"),
           Symbol.random("backend"),
         ],
         [
           Symbol.random("styling"),
+          // "seven",
           Symbol.random("styling"),
           Symbol.random("styling"),
         ],
         [
           Symbol.random("deployment"),
+          // "seven",
           Symbol.random("deployment"),
           Symbol.random("deployment"),
         ],
         [
           Symbol.random("database"),
+          // "seven",
           Symbol.random("database"),
           Symbol.random("database"),
         ],
@@ -468,21 +506,21 @@ import Layout from "@/layouts/Layout.astro";
       return Promise.all(
         this.reels.map((reel) => {
           reel.renderSymbols(this.nextSymbols[reel.idx]);
-
           return reel.spin();
         })
       ).then(() => {
         this.onSpinEnd(this.nextSymbols);
-        SMSoundService.disable();
+        // SMSoundService.disable();
+        const isThala = this.checkFirstIndexIsSeven(this.nextSymbols);
+        if (isThala) {
+          SMSoundService.thalaSound.play(0.03);
+        }
       });
     }
 
     onSpinStart(symbols: string[][]): void {
       this.spinButton.disabled = true;
       this.config.onSpinStart?.(symbols);
-      // if (result) {
-      //   result.classList.add("hidden");
-      // }
     }
 
     onSpinEnd(symbols: string[][]): void {
