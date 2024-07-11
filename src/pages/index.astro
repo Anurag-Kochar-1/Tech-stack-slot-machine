@@ -147,7 +147,7 @@ import Layout from "@/layouts/Layout.astro";
     );
     soundsStatus = "loading";
     isEnabled = false;
-    private _currentVolume = 0.7;
+    private _currentVolume = 0.6;
 
     constructor() {
       this.loadSounds();
@@ -366,6 +366,7 @@ import Layout from "@/layouts/Layout.astro";
     }
   }
 
+
   interface SlotConfig {
     inverted?: boolean;
     onSpinStart?: (symbols: string[][]) => void;
@@ -381,6 +382,7 @@ import Layout from "@/layouts/Layout.astro";
     autoPlayCheckbox: HTMLInputElement;
     config: SlotConfig;
     intervalId: number | null;
+    counter: number;
 
     constructor(domElement: HTMLElement, config: SlotConfig = {}) {
       Symbol.preload("deployment");
@@ -425,6 +427,7 @@ import Layout from "@/layouts/Layout.astro";
 
       this.config = config;
       this.intervalId = null;
+      this.counter = 0;
     }
 
     checkFirstIndexIsSeven(data: string[][]): boolean {
@@ -437,7 +440,8 @@ import Layout from "@/layouts/Layout.astro";
     }
 
     spin(): Promise<void> {
-      document.querySelector("#thalaDancing")?.classList.add("hidden")
+      this.counter++;
+      document.querySelector("#thalaDancing")?.classList.add("hidden");
       // SMSoundService.enable();
       // this.intervalId = window.setInterval(() => {
       //   if (SMSoundService.isEnabled) {
@@ -520,8 +524,8 @@ import Layout from "@/layouts/Layout.astro";
         // SMSoundService.disable();
         const isThala = this.checkFirstIndexIsSeven(this.nextSymbols);
         if (isThala) {
-          SMSoundService.thalaSound.play(0.03);
-          document.querySelector("#thalaDancing")?.classList.remove("hidden")
+          SMSoundService.thalaSound.play(0.08);
+          document.querySelector("#thalaDancing")?.classList.remove("hidden");
         }
       });
     }
