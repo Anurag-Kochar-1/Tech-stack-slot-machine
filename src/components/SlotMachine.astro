@@ -12,11 +12,19 @@ import Controls from "./Controls.astro";
   import { SMSoundService } from "@/scripts/sound-service";
   import { initializeSlotMachine } from "../scripts/slotMachine";
   import { initializeSoundToggle } from "../scripts/soundToggle";
+  const shareOnX = document.querySelector("#shareOnX");
 
   document.addEventListener("DOMContentLoaded", () => {
+    SMSoundService.blipSound.load();
     initializeSlotMachine();
     initializeSoundToggle();
-    SMSoundService.blipSound.load();
+
+    shareOnX?.addEventListener("click", () => {
+      window.open(
+        "https://x.com/intent/post?url=https://th.bing.com/th/id/OIP.k2LZC5ZIIDQUr0EO6zNCFgHaE6?rs=1&pid=ImgDetMain",
+        "_blank"
+      );
+    });
   });
 </script>
 

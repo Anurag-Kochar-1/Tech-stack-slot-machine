@@ -1,14 +1,30 @@
 <div
-  class="flex justify-between items-center gap-4 mt-4 md:mt-0 mx-auto w-[90%] md:w-min"
+  class="flex justify-start flex-col items-center gap-4 mt-4 md:mt-0 mx-auto w-[90%] md:max-w-min"
 >
   <button
     type="button"
     id="spin"
-    class="text-white font-bowlby w-full border-2 md:w-min border-white px-8 py-4 text-lg"
+    class="text-white font-bowlby w-full border-2 md:w-full border-white px-8 py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
     >Spin</button
   >
 
-  <button class="border-4 p-4 border-border" id="toggleSound">
-    <span aria-hidden="true" class="text-xl">🔊</span>
-  </button>
+  <div class="flex justify-center items-center gap-4 w-full">
+    <button class="border-4 p-4 border-border" id="toggleSound">
+      <span aria-hidden="true" class="text-xl">🔊</span>
+    </button>
+
+    <!-- <button
+      class="border-4 p-4 border-border font-bowlby w-full md:w-min"
+      id="shareOnX"
+    >
+      <span aria-hidden="true" class="text-sm truncate text-white/80"
+        >Share on X</span
+      >
+    </button> -->
+    <a href="https://x.com/anurag__kochar" target="_blank" class="border-4 p-4 min-w-20 text-center border-border font-bowlby w-full md:w-min">
+      <span aria-hidden="true" class="text-sm truncate text-white/80"
+        >X</span
+      >
+    </a>
+  </div>
 </div>
