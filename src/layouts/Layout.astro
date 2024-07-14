@@ -1,6 +1,7 @@
 ---
 import GoogleAnalytics from "../components/analytics/GoogleAnalytics.astro";
 import Favicons from "../components/Favicons.astro";
+import Metadata from "../components/Metadata.astro";
 import "@fontsource/bowlby-one";
 import "@fontsource-variable/inter";
 ---
@@ -12,7 +13,7 @@ import "@fontsource-variable/inter";
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <Favicons />
-    <title>Tech stack slot machine</title>
+    <Metadata />
     <GoogleAnalytics />
   </head>
   <body>
