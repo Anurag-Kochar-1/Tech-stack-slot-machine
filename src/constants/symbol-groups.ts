@@ -1,12 +1,5 @@
 import type { SymbolGroups } from "../types";
 
-const thalaForReason = {
-  id: "seven",
-  name: "Seven",
-  logo: "https://utfs.io/f/8551ddcd-2881-4d53-97f3-084be96b8029-1t3bwt.png",
-  landingPageUrl: "",
-};
-
 export const SYMBOL_GROUPS: SymbolGroups = {
   frontend: [
     {
@@ -48,7 +41,6 @@ export const SYMBOL_GROUPS: SymbolGroups = {
       logo: "https://utfs.io/f/d1633d06-1ec4-46c5-bafb-eaa6625a3f8e-m0jdt1.png",
       landingPageUrl: "",
     },
-    // thalaForReason,
   ],
   database: [
     {
@@ -69,7 +61,6 @@ export const SYMBOL_GROUPS: SymbolGroups = {
       logo: "https://utfs.io/f/1cb3f193-9905-4d60-ba70-bf9aff309269-1q4mf6.png",
       landingPageUrl: "",
     },
-    // thalaForReason,
   ],
   deployment: [
     {
@@ -90,7 +81,6 @@ export const SYMBOL_GROUPS: SymbolGroups = {
       logo: "https://utfs.io/f/8d500ce6-1479-4e2d-b964-6882f77204a8-1jkfin.png",
       landingPageUrl: "",
     },
-    // thalaForReason,
   ],
   styling: [
     {
@@ -111,6 +101,5 @@ export const SYMBOL_GROUPS: SymbolGroups = {
       logo: "https://utfs.io/f/a9e6a69e-1892-46de-989a-79768e9267f2-ijelc5.png",
       landingPageUrl: "",
     },
-    // thalaForReason,
   ],
 };

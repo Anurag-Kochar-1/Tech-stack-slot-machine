@@ -12,7 +12,7 @@ class SoundServiceClass {
     );
     soundsStatus = "loading";
     isEnabled = false;
-    private _currentVolume = 0.6;
+    private _currentVolume = 0.1;
 
     constructor() {
       this.loadSounds();
