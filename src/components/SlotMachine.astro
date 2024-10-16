@@ -1,0 +1,52 @@
+---
+import Reels from "./Reels.astro";
+import Controls from "./Controls.astro";
+---
+
+<div class="flex gap-4 justify-center items-start lg:flex-row flex-col">
+  <Reels />
+  <Controls />
+</div>
+
+<script>
+  import { SMSoundService } from "@/scripts/sound-service";
+  import { initializeSlotMachine } from "../scripts/slotMachine";
+  import { initializeSoundToggle } from "../scripts/soundToggle";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    SMSoundService.blipSound.load();
+    initializeSlotMachine();
+    initializeSoundToggle();
+  });
+</script>
+
+<style is:global>
+  .reel {
+    overflow: hidden;
+    width: 20%;
+    height: 100%;
+    position: relative;
+  }
+
+  .reel > .icons {
+    position: relative;
+  }
+
+  .reel > .icons > img {
+    width: calc(100% + 6px);
+    margin: -3px 0 0 -3px;
+    height: auto;
+    border-bottom: 1px solid #27272a;
+
+    /* enable gpu accelaration, fixes iOS flicker */
+    transform: translate3d(0, 0, 0);
+  }
+
+  #slot.inverted .reel {
+    transform: scaleY(-1);
+  }
+
+  #slot.inverted .reel > .icons > img {
+    transform: scaleY(-1);
+  }
+</style>
