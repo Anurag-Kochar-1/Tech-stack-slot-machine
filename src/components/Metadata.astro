@@ -1,32 +1,40 @@
 ---
-import { AstroSeo } from "@astrolib/seo";
+import { SEO } from "astro-seo";
 ---
 
-<AstroSeo
-  noindex={false}
+<SEO
   nofollow={false}
-  title="Tech stack slot machine"
+  noindex={false}
+  title="Tech Stack Slot Machine"
   description="Spin the slot machine to find the perfect tech stack for your next SaaS project!"
-  twitter={{
-    handle: "@anurag__kochar",
-    site: "@anurag__kochar",
-    cardType: "summary_large_image",
-  }}
-  canonical="https://tech-stack-slot-machine.pages.dev/"
   openGraph={{
-    url: "https://tech-stack-slot-machine.pages.dev/",
-    title: "Tech stack slot machine",
-    description:
-      "Spin the slot machine to find the perfect tech stack for your next SaaS project!!",
-    images: [
+    basic: {
+      title: "Tech Stack Slot Machine",
+      type: "A type.",
+      image:
+        "https://utfs.io/f/c00bbdf5-3655-4974-bc61-06a34d917eb6-pjqibl.png",
+    },
+  }}
+  twitter={{
+    creator: "@anurag__kochar",
+    card: "app",
+    site: "https://tech-stack-slot-machine.pages.dev/",
+    description: "I create fun, playful projects you can mess around with and enjoy | 📹 Content Creation Enthusiast"
+  }}
+  extend={{
+    meta: [
       {
-        url: "https://utfs.io/f/c00bbdf5-3655-4974-bc61-06a34d917eb6-pjqibl.png",
-        width: 1280,
-        height: 720,
-        alt: "Spin the slot machine to find the perfect tech stack for your next SaaS project!",
-        type: "image/png",
+        name: "twitter:image",
+        content:
+          "https://utfs.io/f/c00bbdf5-3655-4974-bc61-06a34d917eb6-pjqibl.png",
+      },
+      { name: "twitter:title", content: "Tech Stack Slot Machine" },
+      {
+        name: "twitter:description",
+        content:
+          "Spin the slot machine to find the perfect tech stack for your next SaaS project!",
       },
     ],
-    site_name: "Tech stack slot machine",
   }}
 />
+
