@@ -9,6 +9,12 @@ export const SYMBOL_GROUPS: SymbolGroups = {
       landingPageUrl: "",
     },
     {
+      id: "svelteJs",
+      name: "Svelte JS",
+      logo: "https://raw.githubusercontent.com/sveltejs/branding/refs/heads/master/svelte-logo.svg",
+      landingPageUrl: "https://svelte.dev"
+    },
+    {
       id: "angularJs",
       name: "Angular Js",
       logo: "https://utfs.io/f/088a73d3-d989-4f0b-a1ad-d8c65e2f82c3-e75dem.png",
