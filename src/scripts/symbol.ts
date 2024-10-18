@@ -21,6 +21,11 @@ export class Symbol {
       this.img.src = logo.logo;
       this.img.alt = `${logo.name} logo`;
       cache[name] = this.img;
+      if (logo.id === "svelteJs") {
+        this.img.classList.add("max-w-[85%]");
+        this.img.classList.add("!mx-auto");
+        this.img.classList.add("h-auto");
+      }
     }
   }
 
