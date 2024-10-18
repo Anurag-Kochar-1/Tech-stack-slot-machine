@@ -74,7 +74,7 @@ export class Slot {
 
   spin(): Promise<void> {
     this.counter++;
-    document.querySelector("#thalaDancing")?.classList.add("hidden");
+  
     // SMSoundService.enable();
     // this.intervalId = window.setInterval(() => {
     //   if (SMSoundService.isEnabled) {
