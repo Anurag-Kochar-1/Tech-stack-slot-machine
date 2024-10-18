@@ -102,7 +102,7 @@ export class Slot {
           const newVolume = startVolume * (1 - volumeDecreaseRatio);
 
           SMSoundService.currentVolume = Math.max(0, newVolume);
-          console.log(`Value -> `, Math.max(0, newVolume));
+          // console.log(`Value -> `, Math.max(0, newVolume));
           SMSoundService.blip();
 
           if (currentStep >= totalSteps) {

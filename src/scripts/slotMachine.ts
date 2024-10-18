@@ -4,10 +4,10 @@ export function initializeSlotMachine() {
   const config = {
     inverted: false,
     onSpinStart: (symbols: string[][]) => {
-      console.log("onSpinStart", symbols);
+      // console.log("onSpinStart", symbols);
     },
     onSpinEnd: (symbols: string[][]) => {
-      console.log("onSpinEnd", symbols);
+      // console.log("onSpinEnd", symbols);
     },
   };
 
