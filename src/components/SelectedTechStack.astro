@@ -1,0 +1,83 @@
+---
+interface Props {
+  selectedStack: Record<string, string>;
+}
+---
+
+<selected-tech-stack>
+  <div class="selected-tech-stack">
+    <h2 class="text-xl text-white font-bowlby mb-2">Your Selected Tech Stack</h2>
+    <div id="techStackContent" class="flex flex-wrap gap-4">
+      <p class="text-gray-400">No technologies selected yet.</p>
+    </div>
+  </div>
+</selected-tech-stack>
+
+<style>
+  .selected-tech-stack {
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 2rem;
+  }
+</style>
+
+<script>
+  import { SYMBOL_GROUPS } from '../constants/symbol-groups';
+
+  interface UpdateSelectedStackDetail {
+    selectedStack: Record<string, string>;
+  }
+
+  interface UpdateSelectedStackEvent extends CustomEvent<UpdateSelectedStackDetail> {}
+
+  class SelectedTechStack extends HTMLElement {
+    constructor() {
+      super();
+      this.updateStack = this.updateStack.bind(this);
+    }
+
+    connectedCallback() {
+      document.addEventListener('updateSelectedStack', this.updateStack as EventListener);
+    }
+
+    disconnectedCallback() {
+      document.removeEventListener('updateSelectedStack', this.updateStack as EventListener);
+    }
+
+    updateStack(event: UpdateSelectedStackEvent) {
+        const { selectedStack } = event.detail;
+        this.setAttribute('selected-stack', JSON.stringify(selectedStack));
+        this.render(selectedStack);
+}
+
+    render(selectedStack: Record<string, string>) {
+      const selectedTechnologies = Object.entries(selectedStack).flatMap(([category, techId]) => {
+        if (category in SYMBOL_GROUPS) {
+          const group = SYMBOL_GROUPS[category as keyof typeof SYMBOL_GROUPS];
+          return group.filter(tech => tech.id === techId);
+        }
+        return [];
+      });
+
+      const contentElement = this.querySelector('#techStackContent');
+      if (contentElement) {
+        if (selectedTechnologies.length > 0) {
+          contentElement.innerHTML = selectedTechnologies.map(tech => `
+            <div class="flex w-auto items-center items-center bg-gray-800 p-2 rounded-lg text-white gap-1">
+              <img src="${tech.logo}" alt="${tech.name}" class="w-8 h-8" />
+              <span>${tech.name}</span>
+            </div>
+          `).join('');
+        } else {
+          contentElement.innerHTML = '<p class="text-gray-400">No technologies selected.</p>';
+        }
+      }
+    }
+  }
+
+  customElements.define('selected-tech-stack', SelectedTechStack);
+</script>
+
+

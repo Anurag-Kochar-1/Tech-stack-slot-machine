@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import SlotMachine from "@/components/SlotMachine.astro";
+import SelectedTechStack from "@/components/SelectedTechStack.astro";
 ---
 
 <Layout>
@@ -19,7 +20,7 @@ import SlotMachine from "@/components/SlotMachine.astro";
         Find the tech stack for your next SaaS!
       </p>
     </div>
-
+    <SelectedTechStack selectedStack={{}} />
     <SlotMachine />
   </div>
   <footer

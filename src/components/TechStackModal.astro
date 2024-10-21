@@ -1,0 +1,129 @@
+---
+import StackOptions from '../scripts/StackOptions';
+---
+
+<div id="techStackModal" class="z-30 fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center" style="display: none;">
+  <div class="bg-gray-900 p-8 rounded-xl w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto relative text-white custom-scrollbar">
+    <h2 class="text-3xl font-bold mb-6 text-center text-blue-400">Pick Your Tech Stack</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Object.entries(StackOptions).map(([category, options]) => (
+        <div class="bg-gray-800 p-4 rounded-lg">
+          <h3 class="font-semibold text-xl mb-3 text-blue-300">{category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+          <div class="space-y-2">
+            {options.map((option) => (
+              <button class="tech-item w-full text-left" data-category={category} data-option={option.id}>{option.name}</button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+    <div class="mt-8 flex justify-end sticky bottom-0 bg-transparent py-4">
+      <button id="resetModal" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 mr-4"> Reset </button>
+      <button id="closeModal" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105 mr-4"> Close </button>
+      <button id="selectModal" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105"> Select </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tech-item {
+    @apply bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium py-2 px-4 rounded-md transition duration-200 ease-in-out;
+  }
+  .tech-item.selected {
+    @apply bg-blue-600 text-white;
+  }
+  #techStackModal {
+    backdrop-filter: blur(5px);
+  }
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #4a5568 #2d3748;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #2d3748;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+    border-radius: 10px;
+    border: 2px solid #2d3748;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #718096;
+  }
+</style>
+
+<script>
+  const techStackModal = document.getElementById('techStackModal') as HTMLElement;
+  const pickTechStackButton = document.getElementById('PickTechStack') as HTMLElement;
+  const closeModalButton = document.getElementById('closeModal') as HTMLElement;
+  const resetModalButton = document.getElementById('resetModal') as HTMLElement;
+  const selectModalButton = document.getElementById('selectModal') as HTMLElement;
+  let selectedStack: Record<string, string> = {};
+
+  interface UpdateSelectedStackDetail {
+  selectedStack: Record<string, string>;
+}
+
+function updateSelectedStack() {
+  console.log('Selected Stack:', selectedStack);
+  const event = new CustomEvent<UpdateSelectedStackDetail>('updateSelectedStack', {
+    detail: { selectedStack }
+  });
+  document.dispatchEvent(event);
+}
+
+  if (techStackModal && pickTechStackButton && closeModalButton && resetModalButton && selectModalButton) {
+    pickTechStackButton.addEventListener('click', () => {
+      techStackModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    });
+
+    closeModalButton.addEventListener('click', () => {
+      techStackModal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    });
+
+    resetModalButton.addEventListener('click', () => {
+      selectedStack = {};
+      const techItems = document.querySelectorAll('.tech-item');
+      techItems.forEach((item) => item.classList.remove('selected'));
+      updateSelectedStack();
+    });
+
+    selectModalButton.addEventListener('click', () => {
+      updateSelectedStack();
+      techStackModal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    });
+
+    techStackModal.addEventListener('click', (event) => {
+      if (event.target === techStackModal) {
+        techStackModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    techStackModal.addEventListener('click', (event) => {
+  const target = event.target as HTMLElement;
+  if (target && target.classList.contains('tech-item')) {
+    const category = target.getAttribute('data-category');
+    const optionId = target.getAttribute('data-option');
+    if (category && optionId) {
+      // Deselect previously selected option in the same category
+      const previouslySelectedOption = document.querySelector(`.tech-item.selected[data-category="${category}"]`) as HTMLElement;
+      if (previouslySelectedOption) {
+        previouslySelectedOption.classList.remove('selected');
+        delete selectedStack[category]; // Remove the previously selected option
+      }
+      // Select the new option
+      target.classList.add('selected');
+      selectedStack[category] = optionId; // Store the ID of the selected option
+    }
+  }
+});
+  }
+</script>
