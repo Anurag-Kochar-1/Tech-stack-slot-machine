@@ -151,6 +151,16 @@ export class Slot {
         return reel.spin();
       })
     ).then(() => {
+      const middleSymbols = this.nextSymbols.map((reelSymbols) => reelSymbols[1]);
+      console.log("Symbols on the middle line:", middleSymbols);
+
+      // Emit a custom event with the middleSymbols data
+      const spinResultEvent = new CustomEvent('spinResult', {
+        detail: { middleSymbols },
+        bubbles: true,
+      });
+      window.dispatchEvent(spinResultEvent);
+
       this.onSpinEnd(this.nextSymbols);
       SMSoundService.disable();
     });

@@ -2,6 +2,8 @@
 interface Props {
   selectedStack: Record<string, string>;
 }
+
+const { selectedStack: initialSelectedStack } = Astro.props;
 ---
 
 <selected-tech-stack>
@@ -26,33 +28,78 @@ interface Props {
 <script>
   import { SYMBOL_GROUPS } from '../constants/symbol-groups';
 
-  interface UpdateSelectedStackDetail {
-    selectedStack: Record<string, string>;
+  interface SelectedStack {
+    frontend: string;
+    backend: string;
+    styling: string;
+    deployment: string;
+    database: string;
+  }
+  interface UpdateSelectedStackEvent extends CustomEvent {
+    detail: {
+      selectedStack: SelectedStack;
+    };
   }
 
-  interface UpdateSelectedStackEvent extends CustomEvent<UpdateSelectedStackDetail> {}
-
   class SelectedTechStack extends HTMLElement {
+    selectedStack: SelectedStack;
+    isUpdating: boolean;
+
     constructor() {
       super();
-      this.updateStack = this.updateStack.bind(this);
+      this.isUpdating = false;
+      const storedStack = localStorage.getItem('selectedStack');
+      this.selectedStack = storedStack ? JSON.parse(storedStack) : this.getInitialStack();
+      this.render(this.selectedStack);
+    }
+
+    getInitialStack(): SelectedStack {
+      const initialStackAttr = this.getAttribute('selected-stack');
+      return initialStackAttr ? JSON.parse(initialStackAttr) : {
+        frontend: 'reactJs',
+        backend: 'django',
+        styling: 'antd',
+        deployment: 'vercel',
+        database: 'postgres'
+      };
     }
 
     connectedCallback() {
-      document.addEventListener('updateSelectedStack', this.updateStack as EventListener);
-    }
-
-    disconnectedCallback() {
-      document.removeEventListener('updateSelectedStack', this.updateStack as EventListener);
-    }
-
-    updateStack(event: UpdateSelectedStackEvent) {
-        const { selectedStack } = event.detail;
-        this.setAttribute('selected-stack', JSON.stringify(selectedStack));
-        this.render(selectedStack);
+  document.addEventListener('updateSelectedStack', ((event: UpdateSelectedStackEvent) => {
+    this.handleUpdateEvent(event);
+  }) as EventListener);
 }
 
-    render(selectedStack: Record<string, string>) {
+      disconnectedCallback() {
+        document.removeEventListener('updateSelectedStack', ((event: UpdateSelectedStackEvent) => {
+          this.handleUpdateEvent(event);
+        }) as EventListener);
+      }
+
+      handleUpdateEvent(event: UpdateSelectedStackEvent) {
+        if (!this.isUpdating) {
+          this.isUpdating = true;
+          this.updateStack(event.detail.selectedStack);
+          this.isUpdating = false;
+        }
+      }
+
+    updateStack(newStack: SelectedStack) {
+      this.selectedStack = { ...newStack };
+      localStorage.setItem('selectedStack', JSON.stringify(this.selectedStack));
+      this.render(this.selectedStack);
+      this.emitUpdateEvent();
+    }
+
+    emitUpdateEvent() {
+      const event = new CustomEvent('selectedStackUpdated', {
+        detail: { selectedStack: this.selectedStack },
+        bubbles: true
+      });
+      this.dispatchEvent(event);
+    }
+
+    render(selectedStack: SelectedStack, spinResult: string[] = []) {
       const selectedTechnologies = Object.entries(selectedStack).flatMap(([category, techId]) => {
         if (category in SYMBOL_GROUPS) {
           const group = SYMBOL_GROUPS[category as keyof typeof SYMBOL_GROUPS];
@@ -64,14 +111,17 @@ interface Props {
       const contentElement = this.querySelector('#techStackContent');
       if (contentElement) {
         if (selectedTechnologies.length > 0) {
-          contentElement.innerHTML = selectedTechnologies.map(tech => `
-            <div class="flex w-auto items-center items-center bg-gray-800 p-2 rounded-lg text-white gap-1">
-              <img src="${tech.logo}" alt="${tech.name}" class="w-8 h-8" />
-              <span>${tech.name}</span>
-            </div>
-          `).join('');
+          contentElement.innerHTML = selectedTechnologies.map(tech => {
+            const isInSpinResult = spinResult.includes(tech.name);
+            return `
+              <div class="flex w-auto items-center bg-gray-800 p-2 rounded-lg text-white gap-1 ${isInSpinResult ? 'border border-green-500' : ''}">
+                <img src="${tech.logo}" alt="${tech.name}" class="w-8 h-8" />
+                <span>${tech.name}</span>
+              </div>
+            `;
+          }).join('');
         } else {
-          contentElement.innerHTML = '<p class="text-gray-400">No technologies selected.</p>';
+          contentElement.innerHTML = '<p class="text-gray-400">No technologies selected yet.</p>';
         }
       }
     }
@@ -79,5 +129,3 @@ interface Props {
 
   customElements.define('selected-tech-stack', SelectedTechStack);
 </script>
-
-
