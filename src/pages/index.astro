@@ -1,6 +1,18 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import SlotMachine from "@/components/SlotMachine.astro";
+import SelectedTechStack from "@/components/SelectedTechStack.astro";
+
+// Initializing selected stack with default values
+const initialStack = {
+  frontend: 'reactJs',
+  backend: 'django',
+  styling: 'antd',
+  deployment: 'vercel',
+  database: 'postgres'
+};
+
+let selectedStack = { ...initialStack };
 ---
 
 <Layout>
@@ -19,8 +31,132 @@ import SlotMachine from "@/components/SlotMachine.astro";
         Find the tech stack for your next SaaS!
       </p>
     </div>
-
+    <SelectedTechStack selectedStack={selectedStack}/>
     <SlotMachine />
+    <script>
+      interface SelectedStack {
+        frontend: string;
+        backend: string;
+        styling: string;
+        deployment: string;
+        database: string;
+      }
+
+      interface SpinResultEvent extends CustomEvent {
+        detail: {
+          middleSymbols: string[];
+        };
+      }
+
+      interface UpdateSelectedStackEvent extends CustomEvent {
+        detail: {
+          selectedStack: SelectedStack;
+        };
+      }
+
+      const defaultStack: SelectedStack = {
+        frontend: 'reactJs',
+        backend: 'django',
+        styling: 'antd',
+        deployment: 'vercel',
+        database: 'postgres'
+      };
+
+      let selectedStack: SelectedStack = JSON.parse(localStorage.getItem('selectedStack') || JSON.stringify(defaultStack));
+
+      console.log("Initial Selected Stack:", selectedStack);
+
+      function handleSpinResult(event: SpinResultEvent) {
+        console.log("handleSpinResult called");
+        const spinResult = event.detail.middleSymbols;
+
+        console.log("Current Selected Stack:", selectedStack);
+        console.log("Spin Result:", spinResult);
+        //If user does not select any option from tech stack then simply
+        //return nothing ; 
+        const isEmpty = (obj: object): boolean => {
+            return Object.keys(obj).length === 0;
+        };
+        if(isEmpty(selectedStack)){
+          console.log("User Selected Nothing :)");
+          return;
+        }
+
+        // Compare spinResult with selectedStack
+        const isBingo = checkBingo(selectedStack, spinResult);
+
+        if (isBingo) {
+          console.log("BINGO! All matched!");
+          showBingoAnimation();
+        } else {
+          console.log("Does not match! Here's why:");
+          Object.entries(selectedStack).forEach(([key, value]) => {
+            if (!spinResult.includes(value)) {
+              console.log(`${key}: Expected ${value}, but not found in spin result.`);
+            }
+          });
+        }
+
+        // Updating the SelectedTechStack component
+        updateSelectedTechStackComponent(selectedStack, spinResult);
+      }
+
+      function checkBingo(selectedStack: SelectedStack, spinResult: string[]): boolean {
+        return Object.values(selectedStack).every(value => spinResult.includes(value));
+      }
+
+      function showBingoAnimation() {
+        //I am not an frontend expert so make changes according 
+        // to the requirements :D
+        const bingoElement = document.createElement('div');
+        bingoElement.innerHTML = `🎉 Bingo! 🎉`;
+        document.body.appendChild(bingoElement);
+
+        Object.assign(bingoElement.style, {
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: 'green',
+          padding: '20px',
+          fontSize: '30px',
+          fontWeight: 'bold',
+          color:'white',
+          borderRadious:'2rem',
+          zIndex: '9999'
+        });
+
+        setTimeout(() => {
+          bingoElement.remove();
+        }, 3000);
+      }
+
+      function updateSelectedTechStackComponent(selectedStack: SelectedStack, spinResult: string[] = []) {
+        const selectedTechStackElement = document.querySelector('selected-tech-stack') as HTMLElement & { render: (stack: SelectedStack, result: string[]) => void };
+        if (selectedTechStackElement && 'render' in selectedTechStackElement) {
+          selectedTechStackElement.render(selectedStack, spinResult);
+        }
+      }
+
+      // Function to update selectedStack from user input
+      function updateSelectedStack(newStack: SelectedStack) {
+        selectedStack = { ...newStack };
+        localStorage.setItem('selectedStack', JSON.stringify(selectedStack));
+        console.log("Selected stack updated:", selectedStack);
+        updateSelectedTechStackComponent(selectedStack);
+      }
+
+      // Listen for updateSelectedStack events
+      document.addEventListener('updateSelectedStack', ((event: UpdateSelectedStackEvent) => {
+        updateSelectedStack(event.detail.selectedStack);
+      }) as EventListener);
+
+      // Add event listener to window object for spin results
+      window.addEventListener('spinResult', handleSpinResult as EventListener);
+
+      // Initial render of SelectedTechStack component
+      updateSelectedTechStackComponent(selectedStack);
+    </script>
   </div>
   <footer
     class="w-full text-center py-6 px-4 text-sm md:text-base bg-background"
@@ -39,7 +175,7 @@ import SlotMachine from "@/components/SlotMachine.astro";
 <script is:inline>
   console.log(
     `%cGambling is fundamental to life - %cperspective2077`,
-    "color: #007BFF; font-weight: bold; font-size: 20px;", // Bright blue
-    "color: #0056b3; font-weight: bold; font-size: 20px;" // Darker blue
+    "color: #007BFF; font-weight: bold; font-size: 20px;",
+    "color: #0056b3; font-weight: bold; font-size: 20px;"
   );
 </script>
